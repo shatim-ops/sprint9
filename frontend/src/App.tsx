@@ -11,9 +11,19 @@ const keycloakConfig: KeycloakConfig = {
 
 const keycloak = new Keycloak(keycloakConfig);
 
+// PKCE: keycloak-js сам генерирует code_verifier, кладёт его в sessionStorage
+// и отправляет code_challenge (S256) в authorization request.
+// Вторая половина настройки на стороне Keycloak: у клиента reports-frontend
+// в realm-export.json стоит pkce.code.challenge.method = S256,
+// без challenge он авторизацию не начнёт.
+const initOptions = {
+  pkceMethod: 'S256' as const,
+  checkLoginIframe: false,
+};
+
 const App: React.FC = () => {
   return (
-    <ReactKeycloakProvider authClient={keycloak}>
+    <ReactKeycloakProvider authClient={keycloak} initOptions={initOptions}>
       <div className="App">
         <ReportPage />
       </div>
